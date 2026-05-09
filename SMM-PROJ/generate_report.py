@@ -155,7 +155,6 @@ def get_styles():
         "CoverTeamCellBold", parent=base["Normal"], fontSize=10.5,
         leading=14, fontName="Helvetica-Bold", textColor=NUCES_BLUE,
     )
-
     for lvl, sname in [(0, "Heading1"), (1, "Heading2"), (2, "Heading3")]:
         styles[sname].outlineLevel = lvl
 
@@ -2199,6 +2198,138 @@ def build_task8(story, styles):
 
 
 # ---------------------------------------------------------------------------
+# Member contributions (closing section)
+# ---------------------------------------------------------------------------
+
+def make_member_contribution_table(styles):
+    """Three-column roster: member, roll no., wrapped contribution bullets."""
+    avail = PAGE_W - 2 * MARGIN
+    w_name = 3.45 * cm
+    w_roll = 2.05 * cm
+    w_text = avail - w_name - w_roll
+
+    hdr = styles["TableHeader"]
+    name_st = ParagraphStyle(
+        "_mname", parent=styles["TableCell"], fontSize=10,
+        fontName="Helvetica-Bold", textColor=DARK_GRAY, leading=13,
+        alignment=TA_LEFT,
+    )
+    roll_st = ParagraphStyle(
+        "_mroll", parent=styles["TableCell"], fontSize=10,
+        fontName="Helvetica-Bold", textColor=NUCES_BLUE, leading=13,
+        alignment=TA_CENTER,
+    )
+    cont_st = ParagraphStyle(
+        "_mcontrib", parent=styles["TableCell"], fontSize=8.5,
+        fontName="Helvetica", leading=11.5, alignment=TA_LEFT,
+    )
+
+    def _contrib_cell(items):
+        lines = []
+        for it in items:
+            lines.append(f"\u2022 {it}")
+        return Paragraph("<br/>".join(lines), cont_st)
+
+    rows = [
+        [
+            Paragraph("Member", hdr),
+            Paragraph("Roll no.", hdr),
+            Paragraph("Primary contributions", hdr),
+        ],
+        [
+            Paragraph("Hammad Zahid", name_st),
+            Paragraph("22I-2433", roll_st),
+            _contrib_cell([
+                "Configuration &amp; session (<font name=\"Courier\" size=\"8\">"
+                "EnvConfig</font>, <font name=\"Courier\" size=\"8\">Session"
+                "</font>); authentication UI (<font name=\"Courier\" size=\"8\">"
+                "LoginForm</font>, <font name=\"Courier\" size=\"8\">"
+                "RegisterForm</font>).",
+                "Student-role WinForms: societies, events, memberships, "
+                "tickets, and dashboard navigation.",
+                "Metrics: Task 2 (cyclomatic complexity &amp; test cases), "
+                "Task 3 (structural metrics), support for Task 5.",
+            ]),
+        ],
+        [
+            Paragraph("Abdullah Asif", name_st),
+            Paragraph("22I-1527", roll_st),
+            _contrib_cell([
+                "Database scripts (<font name=\"Courier\" size=\"8\">schema.sql"
+                "</font>, <font name=\"Courier\" size=\"8\">seed.sql</font>); "
+                "DAL / <font name=\"Courier\" size=\"8\">DBHelper</font> for "
+                "all core entities.",
+                "Admin WinForms: dashboards, users, societies, event approvals, "
+                "reports.",
+                "Metrics: Task 4 (CK suite), Task 5 (fault injection &amp; "
+                "Poisson reliability).",
+            ]),
+        ],
+        [
+            Paragraph("Dawood Qammar", name_st),
+            Paragraph("22I-2522", roll_st),
+            _contrib_cell([
+                "Society-head WinForms: dashboard, members, events, tasks, "
+                "society reports.",
+                "Metrics: Task 6 (KLM), Task 7 (COCOMO semi-detached), Task 8 "
+                "(documentation ratio).",
+                "<font name=\"Courier\" size=\"8\">generate_report.py</font> "
+                "PDF pipeline, cover &amp; layout, README and repo hygiene.",
+            ]),
+        ],
+    ]
+
+    tbl = Table(rows, colWidths=[w_name, w_roll, w_text], repeatRows=1)
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), NUCES_BLUE),
+        ("TEXTCOLOR", (0, 0), (-1, 0), white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+        ("TOPPADDING", (0, 0), (-1, 0), 10),
+        ("GRID", (0, 0), (-1, -1), 0.45, HexColor("#CCCCCC")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 1), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 1), (-1, -1), 10),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [white, LIGHT_GRAY]),
+    ]))
+    return tbl
+
+
+def build_member_contributions(story, styles):
+    story.append(PageBreak())
+    add_toc_heading(story, "9. Member Contributions", 1, styles)
+    story.append(para(
+        "The table below summarizes each member\u2019s main responsibilities "
+        "for the FAST Societies Management System implementation, the "
+        "software-metrics coursework (Tasks 2\u20138), and the consolidated "
+        "PDF report. All members participated in joint design reviews, "
+        "integration testing, and final submission checks.",
+        styles))
+    story.append(spacer(8))
+
+    add_toc_heading(story, "9.1 Contribution summary", 2, styles)
+    story.append(spacer(4))
+
+    tbl = make_member_contribution_table(styles)
+    story.append(tbl)
+
+    story.append(spacer(14))
+    decl_st = ParagraphStyle(
+        "_mdecl", parent=styles["SmallBody"], alignment=TA_CENTER,
+        fontSize=9, leading=12, spaceBefore=4, textColor=MUTED_GRAY,
+    )
+    story.append(Paragraph(
+        "<i>Declaration:</i> We confirm that the contributions above reflect "
+        "our division of work; shared modules were developed collaboratively "
+        "with paired reviews where noted.",
+        decl_st,
+    ))
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -2226,6 +2357,7 @@ def main():
     build_task6(story, styles)
     build_task7(story, styles)
     build_task8(story, styles)
+    build_member_contributions(story, styles)
 
     doc.multiBuild(story)
     print(f"Report generated: {OUTPUT_PATH}")

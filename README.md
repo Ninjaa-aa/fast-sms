@@ -114,7 +114,7 @@ From the **`SMM-PROJ`** project directory (where `generate_report.py` lives):
 py generate_report.py
 ```
 
-This writes **`SMM_Report.pdf`** next to the script. Content is assembled from the hardcoded tables and text in `generate_report.py` (aligned with the analysis under **`analysis/`**). Ensure **`assets/nuces_logo.png`** and **`assets/architecture.png`** exist for the cover and architecture pages.
+This writes **`SMM_Report.pdf`** next to the script. Content is assembled from the hardcoded tables and text in `generate_report.py` (aligned with the analysis under **`analysis/`**), ending with **Section 9 — Member Contributions** (edit the contribution rows in `make_member_contribution_table()` inside `generate_report.py` if your team’s split differs). Ensure **`assets/nuces_logo.png`** and **`assets/architecture.png`** exist for the cover and architecture pages.
 
 ### Metrics analysis (Markdown)
 
