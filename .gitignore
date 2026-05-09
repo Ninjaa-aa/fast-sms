@@ -26,7 +26,7 @@ artifacts/
 *.VC.VC.opendb
 
 ## Cursor / VS Code
-.cursor/
+# .cursor/
 .vscode/
 
 ## JetBrains Rider
