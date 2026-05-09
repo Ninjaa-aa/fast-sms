@@ -8,6 +8,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
     TableStyle, PageBreak, Image, Preformatted, KeepTogether,
     NextPageTemplate)
+from reportlab.platypus.flowables import HRFlowable
 from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.platypus.doctemplate import PageTemplate, BaseDocTemplate, Frame
 from reportlab.lib.fonts import addMapping
@@ -20,9 +21,12 @@ ARCH_PATH = os.path.join(BASE_DIR, "assets", "architecture.png")
 OUTPUT_PATH = os.path.join(BASE_DIR, "SMM_Report.pdf")
 
 NUCES_BLUE = HexColor("#0072BC")
+NUCES_BLUE_DARK = HexColor("#005A94")
 LIGHT_BLUE = HexColor("#E8F4FD")
 LIGHT_GRAY = HexColor("#F2F2F2")
 DARK_GRAY = HexColor("#333333")
+MUTED_GRAY = HexColor("#64748B")
+COVER_RULE = HexColor("#CBD5E1")
 
 PAGE_W, PAGE_H = A4
 MARGIN = 1.8 * cm
@@ -90,13 +94,58 @@ def get_styles():
         leading=32, alignment=TA_CENTER, textColor=NUCES_BLUE,
         fontName="Helvetica-Bold",
     )
-    styles["CoverSubtitle"] = ParagraphStyle(
-        "CoverSubtitle", parent=base["Normal"], fontSize=14,
-        leading=18, alignment=TA_CENTER, fontName="Helvetica",
-    )
     styles["CoverInfo"] = ParagraphStyle(
         "CoverInfo", parent=base["Normal"], fontSize=12,
         leading=16, alignment=TA_CENTER, fontName="Helvetica",
+    )
+    # Cover page — refined hierarchy
+    styles["CoverKicker"] = ParagraphStyle(
+        "CoverKicker", parent=base["Normal"], fontSize=9,
+        leading=12, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=MUTED_GRAY, spaceBefore=0, spaceAfter=0,
+    )
+    styles["CoverCourseLine"] = ParagraphStyle(
+        "CoverCourseLine", parent=base["Normal"], fontSize=11,
+        leading=15, alignment=TA_CENTER, fontName="Helvetica",
+        textColor=MUTED_GRAY, spaceBefore=0, spaceAfter=0,
+    )
+    styles["CoverProjectTitle"] = ParagraphStyle(
+        "CoverProjectTitle", parent=base["Title"], fontSize=22,
+        leading=28, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=NUCES_BLUE, spaceBefore=6, spaceAfter=4,
+    )
+    styles["CoverProjectTagline"] = ParagraphStyle(
+        "CoverProjectTagline", parent=base["Normal"], fontSize=10.5,
+        leading=14, alignment=TA_CENTER, fontName="Helvetica-Oblique",
+        textColor=MUTED_GRAY, spaceBefore=0, spaceAfter=0,
+    )
+    styles["CoverSectionLabel"] = ParagraphStyle(
+        "CoverSectionLabel", parent=base["Normal"], fontSize=8,
+        leading=12, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=MUTED_GRAY, spaceBefore=2, spaceAfter=4,
+    )
+    styles["CoverFacultyName"] = ParagraphStyle(
+        "CoverFacultyName", parent=base["Normal"], fontSize=13,
+        leading=17, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=DARK_GRAY, spaceBefore=0, spaceAfter=2,
+    )
+    styles["CoverSectionValue"] = ParagraphStyle(
+        "CoverSectionValue", parent=base["Normal"], fontSize=11,
+        leading=15, alignment=TA_CENTER, fontName="Helvetica",
+        textColor=DARK_GRAY, spaceBefore=0, spaceAfter=0,
+    )
+    styles["CoverTeamHeader"] = ParagraphStyle(
+        "CoverTeamHeader", parent=base["Normal"], fontSize=8,
+        leading=11, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=MUTED_GRAY, spaceBefore=18, spaceAfter=8,
+    )
+    styles["CoverTeamCell"] = ParagraphStyle(
+        "CoverTeamCell", parent=base["Normal"], fontSize=10.5,
+        leading=14, fontName="Helvetica", textColor=DARK_GRAY,
+    )
+    styles["CoverTeamCellBold"] = ParagraphStyle(
+        "CoverTeamCellBold", parent=base["Normal"], fontSize=10.5,
+        leading=14, fontName="Helvetica-Bold", textColor=NUCES_BLUE,
     )
 
     for lvl, sname in [(0, "Heading1"), (1, "Heading2"), (2, "Heading3")]:
@@ -201,10 +250,48 @@ class MyDocTemplate(BaseDocTemplate):
             id="cover",
         )
         self.addPageTemplates([
-            PageTemplate(id="Cover", frames=[cover_frame]),
+            PageTemplate(id="Cover", frames=[cover_frame],
+                         onPage=self._on_cover_page),
             PageTemplate(id="Later", frames=[content_frame],
                          onPage=self._on_later_pages),
         ])
+
+    @staticmethod
+    def _on_cover_page(canvas, doc):
+        """Full-bleed header band and footer rule (cover only)."""
+        canvas.saveState()
+        bar_h = 14 * mm
+        canvas.setFillColor(NUCES_BLUE_DARK)
+        canvas.rect(0, PAGE_H - bar_h, PAGE_W, bar_h, fill=1, stroke=0)
+        canvas.setFillColor(NUCES_BLUE)
+        canvas.rect(0, PAGE_H - bar_h - 1 * mm, PAGE_W, 1 * mm, fill=1, stroke=0)
+
+        canvas.setFillColor(white)
+        canvas.setFont("Helvetica-Bold", 9.5)
+        canvas.drawCentredString(
+            PAGE_W / 2,
+            PAGE_H - bar_h / 2 + 2.2 * mm,
+            "NATIONAL UNIVERSITY OF COMPUTER AND EMERGING SCIENCES",
+        )
+        canvas.setFont("Helvetica", 8)
+        canvas.drawCentredString(
+            PAGE_W / 2,
+            PAGE_H - bar_h / 2 - 2.2 * mm,
+            "FAST \u2014 National University of Computer and Emerging Sciences (NUCES)",
+        )
+
+        y_rule = 22 * mm
+        canvas.setStrokeColor(COVER_RULE)
+        canvas.setLineWidth(0.75)
+        canvas.line(MARGIN, y_rule, PAGE_W - MARGIN, y_rule)
+        canvas.setFillColor(MUTED_GRAY)
+        canvas.setFont("Helvetica", 8)
+        canvas.drawCentredString(
+            PAGE_W / 2,
+            y_rule - 4.5 * mm,
+            "Software Engineering \u00b7 SE-4011 Software Measurement and Metrics \u00b7 May 2026",
+        )
+        canvas.restoreState()
 
     @staticmethod
     def _on_later_pages(canvas, doc):
@@ -243,47 +330,90 @@ class MyDocTemplate(BaseDocTemplate):
 # Cover page
 # ---------------------------------------------------------------------------
 
+def make_cover_team_table(styles):
+    """Compact team roster (cover only; distinct from data tables)."""
+    avail = PAGE_W - 2 * MARGIN
+    inner = min(12.5 * cm, avail * 0.78)
+    hdr = styles["CoverTeamCellBold"]
+    cell = styles["CoverTeamCell"]
+    data = [
+        [Paragraph("Name", hdr), Paragraph("Roll number", hdr)],
+        [Paragraph("Hammad Zahid", cell), Paragraph("22I-2433", cell)],
+        [Paragraph("Abdullah Asif", cell), Paragraph("22I-1527", cell)],
+        [Paragraph("Dawood Qammar", cell), Paragraph("22I-2522", cell)],
+    ]
+    t = Table(data, colWidths=[inner * 0.62, inner * 0.38])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), LIGHT_BLUE),
+        ("TEXTCOLOR", (0, 0), (-1, 0), NUCES_BLUE_DARK),
+        ("LINEBELOW", (0, 0), (-1, 0), 1.0, NUCES_BLUE),
+        ("LINEBELOW", (0, 1), (-1, -1), 0.35, COVER_RULE),
+        ("ALIGN", (0, 0), (0, -1), "LEFT"),
+        ("ALIGN", (1, 0), (1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+        ("LEFTPADDING", (0, 0), (-1, -1), 14),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+    ]))
+    t.hAlign = "CENTER"
+    return t
+
+
 def build_cover(story, styles):
-    story.append(Spacer(1, 3 * cm))
+    # Institution line is on the canvas header band; start with logo + title block
+    story.append(Spacer(1, 8 * mm))
 
     if os.path.exists(LOGO_PATH):
-        logo = Image(LOGO_PATH, width=4 * cm, height=4 * cm)
+        logo = Image(LOGO_PATH, width=3.4 * cm, height=3.4 * cm)
         logo.hAlign = "CENTER"
         story.append(logo)
     else:
         story.append(Paragraph("[Logo not found]", styles["CoverInfo"]))
 
-    story.append(Spacer(1, 1 * cm))
-    story.append(Paragraph(
-        "NATIONAL UNIVERSITY OF COMPUTER AND EMERGING SCIENCES",
-        styles["CoverSubtitle"]))
-    story.append(Paragraph("(FAST-NUCES)", styles["CoverSubtitle"]))
-    story.append(Spacer(1, 1.5 * cm))
-    story.append(Paragraph(
-        "SE-4011 \u2014 Software Measurement and Metrics",
-        styles["CoverTitle"]))
-    story.append(Spacer(1, 0.4 * cm))
-    story.append(Paragraph(
-        '<font size="28"><b>FAST Societies Management System</b></font>',
-        ParagraphStyle("_big", parent=styles["CoverTitle"], fontSize=28,
-                       leading=34)))
-    story.append(Spacer(1, 2 * cm))
-    story.append(Paragraph(
-        "Submitted to: <b>Dr. Atif Jillani</b>", styles["CoverInfo"]))
-    story.append(Paragraph("Section: <b>SE-D</b>", styles["CoverInfo"]))
-    story.append(Spacer(1, 1.5 * cm))
+    story.append(Spacer(1, 10 * mm))
+    story.append(Paragraph("COURSE DELIVERABLE", styles["CoverKicker"]))
+    story.append(Spacer(1, 3 * mm))
 
-    team_data = [
-        ["Name", "Roll Number"],
-        ["Hammad Zahid", "22I-2433"],
-        ["Abdullah Asif", "22I-1527"],
-        ["Dawood Qammar", "22I-2522"],
-    ]
-    tw = 10 * cm
-    team_tbl = make_table(team_data, [tw * 0.55, tw * 0.45], styles,
-                          font_size=10)
-    team_tbl.hAlign = "CENTER"
-    story.append(team_tbl)
+    story.append(HRFlowable(
+        width="52%", thickness=1.25, lineCap="butt",
+        color=NUCES_BLUE, spaceBefore=2, spaceAfter=10, hAlign="CENTER",
+    ))
+
+    story.append(Paragraph(
+        "<font name=\"Helvetica-Bold\" color=\"#0072BC\">SE-4011</font>"
+        "&nbsp;&nbsp;&nbsp;<font color=\"#64748B\">Software Measurement and "
+        "Metrics</font>",
+        styles["CoverCourseLine"],
+    ))
+    story.append(Spacer(1, 14 * mm))
+    story.append(Paragraph(
+        "FAST Societies Management System",
+        styles["CoverProjectTitle"],
+    ))
+    story.append(Paragraph(
+        "Consolidated technical report \u2014 software metrics, reliability, "
+        "usability, and estimation analysis",
+        styles["CoverProjectTagline"],
+    ))
+
+    story.append(HRFlowable(
+        width="72%", thickness=0.75, lineCap="butt",
+        color=COVER_RULE, spaceBefore=16, spaceAfter=14, hAlign="CENTER",
+    ))
+
+    story.append(Paragraph("SUBMITTED TO", styles["CoverSectionLabel"]))
+    story.append(Paragraph("Dr. Atif Jillani", styles["CoverFacultyName"]))
+    story.append(Spacer(1, 2 * mm))
+    story.append(Paragraph(
+        "Section &nbsp;<b>SE-D</b> &nbsp;&nbsp;\u00b7&nbsp;&nbsp; Department of "
+        "Software Engineering",
+        styles["CoverSectionValue"],
+    ))
+
+    story.append(Paragraph("GROUP MEMBERS", styles["CoverTeamHeader"]))
+    story.append(make_cover_team_table(styles))
+
     story.append(NextPageTemplate("Later"))
     story.append(PageBreak())
 
