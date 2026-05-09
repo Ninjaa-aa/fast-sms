@@ -20,6 +20,9 @@ LOGO_PATH = os.path.join(BASE_DIR, "assets", "nuces_logo.png")
 ARCH_PATH = os.path.join(BASE_DIR, "assets", "architecture.png")
 OUTPUT_PATH = os.path.join(BASE_DIR, "SMM_Report.pdf")
 
+GITHUB_REPO_URL = "https://github.com/Ninjaa-aa/fast-sms"
+GITHUB_REPO_SHORT = "github.com/Ninjaa-aa/fast-sms"
+
 NUCES_BLUE = HexColor("#0072BC")
 NUCES_BLUE_DARK = HexColor("#005A94")
 LIGHT_BLUE = HexColor("#E8F4FD")
@@ -291,6 +294,18 @@ class MyDocTemplate(BaseDocTemplate):
             y_rule - 4.5 * mm,
             "Software Engineering \u00b7 SE-4011 Software Measurement and Metrics \u00b7 May 2026",
         )
+        # Clickable source repository (same URL as body link on cover)
+        canvas.setFont("Helvetica", 7.5)
+        canvas.setFillColor(NUCES_BLUE)
+        tw = canvas.stringWidth(GITHUB_REPO_SHORT, "Helvetica", 7.5)
+        x0 = (PAGE_W - tw) / 2
+        y_link = y_rule - 9.5 * mm
+        canvas.linkURL(
+            GITHUB_REPO_URL,
+            (x0 - 2, y_link - 1, x0 + tw + 2, y_link + 8),
+            relative=0,
+        )
+        canvas.drawString(x0, y_link, GITHUB_REPO_SHORT)
         canvas.restoreState()
 
     @staticmethod
@@ -413,6 +428,13 @@ def build_cover(story, styles):
 
     story.append(Paragraph("GROUP MEMBERS", styles["CoverTeamHeader"]))
     story.append(make_cover_team_table(styles))
+
+    story.append(Spacer(1, 6 * mm))
+    story.append(Paragraph(
+        '<font size="9" color="#64748B">Source repository: </font>'
+        f'<a href="{GITHUB_REPO_URL}" color="#0072BC"><u>{GITHUB_REPO_URL}</u></a>',
+        styles["CoverCourseLine"],
+    ))
 
     story.append(NextPageTemplate("Later"))
     story.append(PageBreak())
