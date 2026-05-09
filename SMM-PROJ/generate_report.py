@@ -125,12 +125,17 @@ def get_styles():
     styles["CoverSectionLabel"] = ParagraphStyle(
         "CoverSectionLabel", parent=base["Normal"], fontSize=8,
         leading=12, alignment=TA_CENTER, fontName="Helvetica-Bold",
-        textColor=MUTED_GRAY, spaceBefore=2, spaceAfter=4,
+        textColor=MUTED_GRAY, spaceBefore=2, spaceAfter=3,
+    )
+    styles["CoverSectionLabelSpaced"] = ParagraphStyle(
+        "CoverSectionLabelSpaced", parent=base["Normal"], fontSize=8,
+        leading=12, alignment=TA_CENTER, fontName="Helvetica-Bold",
+        textColor=MUTED_GRAY, spaceBefore=10, spaceAfter=3,
     )
     styles["CoverFacultyName"] = ParagraphStyle(
         "CoverFacultyName", parent=base["Normal"], fontSize=13,
         leading=17, alignment=TA_CENTER, fontName="Helvetica-Bold",
-        textColor=DARK_GRAY, spaceBefore=0, spaceAfter=2,
+        textColor=DARK_GRAY, spaceBefore=0, spaceAfter=0,
     )
     styles["CoverSectionValue"] = ParagraphStyle(
         "CoverSectionValue", parent=base["Normal"], fontSize=11,
@@ -419,10 +424,13 @@ def build_cover(story, styles):
 
     story.append(Paragraph("SUBMITTED TO", styles["CoverSectionLabel"]))
     story.append(Paragraph("Dr. Atif Jillani", styles["CoverFacultyName"]))
-    story.append(Spacer(1, 2 * mm))
+
+    story.append(Paragraph("SECTION", styles["CoverSectionLabelSpaced"]))
+    story.append(Paragraph("<b>SE-D</b>", styles["CoverSectionValue"]))
+
+    story.append(Paragraph("DEPARTMENT", styles["CoverSectionLabelSpaced"]))
     story.append(Paragraph(
-        "Section &nbsp;<b>SE-D</b> &nbsp;&nbsp;\u00b7&nbsp;&nbsp; Department of "
-        "Software Engineering",
+        "Department of Software Engineering",
         styles["CoverSectionValue"],
     ))
 
