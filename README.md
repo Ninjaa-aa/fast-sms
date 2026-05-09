@@ -80,12 +80,53 @@ SMM-PROJ/                          ← Git repository root
     │   ├── PasswordHasher.cs      ← BCrypt hash / verify
     │   └── Session.cs             ← Current user after login
     ├── Models/                    ← User, Society, Event, etc.
+    ├── analysis/                  ← Tasks 2–8 metrics write-ups (Markdown)
+    ├── assets/                    ← Cover logo + architecture diagram (PDF build)
+    ├── generate_report.py         ← Builds SMM_Report.pdf (see below)
     └── forms/
         ├── Auth/                  ← Login, Register
         ├── Admin/                 ← Admin dashboard + tools
         ├── Society/               ← Society head dashboard + tools
         └── Student/               ← Student dashboard + tools
 ```
+
+---
+
+## Course report (PDF)
+
+The **SE-4011** consolidated deliverable is generated as **`SMM-PROJ/SMM_Report.pdf`** from the same folder as the WinForms project.
+
+### Prerequisites
+
+- **Python 3** with the Windows launcher **`py`** available on `PATH`
+- Packages: **reportlab**, **Pillow**
+
+```powershell
+cd "SMM-PROJ"
+py -m pip install reportlab Pillow
+```
+
+### Generate the PDF
+
+From the **`SMM-PROJ`** project directory (where `generate_report.py` lives):
+
+```powershell
+py generate_report.py
+```
+
+This writes **`SMM_Report.pdf`** next to the script. Content is assembled from the hardcoded tables and text in `generate_report.py` (aligned with the analysis under **`analysis/`**). Ensure **`assets/nuces_logo.png`** and **`assets/architecture.png`** exist for the cover and architecture pages.
+
+### Metrics analysis (Markdown)
+
+Task write-ups used for the course submission live under **`SMM-PROJ/analysis/`**, for example:
+
+- `task2-cyclomatic-complexity.md` — cyclomatic complexity and test cases  
+- `task3-structural-metric.md` — structural metrics and best-module justification  
+- `task4-ck-metrics.md` — CK suite  
+- `task5-fault-injection.md` — fault injection and Poisson reliability  
+- `task6-klm-evaluation.md` — KLM usability  
+- `task7-cocomo.md` — Basic COCOMO (semi-detached)  
+- `task8-documentation-ratio.md` — documentation ratio  
 
 ---
 
